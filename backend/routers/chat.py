@@ -44,6 +44,7 @@ def send_message(
     ai_message = Message(
         id=str(uuid.uuid4()),
         text=response,
+        from_external_integration=plugin.external_integration,
         created_at=datetime.utcnow(),
         sender='ai',
         plugin_id=plugin_id,

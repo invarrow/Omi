@@ -14,6 +14,8 @@ from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder, Huma
 from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain_core.tools import create_retriever_tool
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
+from langchain_community.embeddings import OllamaEmbeddings
+from langchain_groq import ChatGroq
 from langchain_pinecone import PineconeVectorStore
 from pydantic import BaseModel, Field
 
@@ -23,12 +25,13 @@ from models.plugin import Plugin
 
 llm = ChatOpenAI(model='gpt-4o')
 embeddings = OpenAIEmbeddings(model="text-embedding-3-large")
+embeddings = OllamaEmbeddings(model="nomic-embed-text")
 parser = PydanticOutputParser(pydantic_object=Structured)
 llm_with_parser = llm.with_structured_output(Structured)
 
 
-# groq_llm = llm = ChatGroq(model="llama-3.1-70b-versatile", temperature=0, max_retries=2)
-# groq_llm_with_parser = groq_llm.with_structured_output(Structured)
+groq_llm = llm = ChatGroq(model="llama-3.1-70b-versatile", temperature=0, max_retries=2)
+groq_llm_with_parser = groq_llm.with_structured_output(Structured)
 
 
 # TODO: include caching layer, redis
@@ -47,15 +50,15 @@ def get_transcript_structure(transcript: str, started_at: datetime, language_cod
         'system',
         '''Your task is to provide structure and clarity to the recording transcription of a conversation.
         The conversation language is {language_code}. Use English for your response.
-        
+
         {force_process_str}
 
         For the title, use the main topic of the conversation.
         For the overview, condense the conversation into a summary with the main topics discussed, make sure to capture the key points and important details from the conversation.
-        For the action items, include a list of commitments, specific tasks or actionable next steps from the conversation. Specify which speaker is responsible for each action item. 
+        For the action items, include a list of commitments, specific tasks or actionable next steps from the conversation. Specify which speaker is responsible for each action item.
         For the category, classify the conversation into one of the available categories.
         For Calendar Events, include a list of events extracted from the conversation, that the user must have on his calendar. For date context, this conversation happened on {started_at}.
-            
+
         Transcript: ```{transcript}```
 
         {format_instructions}'''.replace('    ', '').strip()
@@ -84,7 +87,7 @@ def summarize_open_glass(photos: List[MemoryPhoto]) -> Structured:
       For the title, use the main topic of the scenes.
       For the overview, condense the descriptions into a brief summary with the main topics discussed, make sure to capture the key points and important details.
       For the category, classify the scenes into one of the available categories.
-    
+
       Photos Descriptions: ```{photos_str}```
       '''.replace('    ', '').strip()
     return llm_with_parser.invoke(prompt)
@@ -96,7 +99,7 @@ def summarize_screen_pipe(description: str) -> Structured:
       For the title, use the main topic of the scenes.
       For the overview, condense the descriptions into a brief summary with the main topics discussed, make sure to capture the key points and important details.
       For the category, classify the scenes into one of the available categories.
-    
+
       Screenshots: ```{description}```
       '''.replace('    ', '').strip()
     # return groq_llm_with_parser.invoke(prompt)
@@ -106,7 +109,7 @@ def summarize_screen_pipe(description: str) -> Structured:
 def get_plugin_result(transcript: str, plugin: Plugin) -> str:
     prompt = f'''
     Your are an AI with the following characteristics:
-    Name: ${plugin.name}, 
+    Name: ${plugin.name},
     Description: ${plugin.description},
     Task: ${plugin.memory_prompt}
 
@@ -262,15 +265,15 @@ def determine_requires_context(messages: List[Message]) -> Optional[Tuple[List[s
     prompt = '''
             Based on the current conversation an AI and a User are having, determine if the AI requires context outside the conversation to respond to the user's message.
             More context could mean, user stored old conversations, notes, or information that seems very user-specific.
-    
+
             - First determine if the conversation requires context, in the field "requires_context".
             - Context could be 2 different things:
               - A list of topics (each topic being 1 or 2 words, e.g. "Startups" "Funding" "Business Meeting" "Artificial Intelligence") that are going to be used to retrieve more context, in the field "topics". Leave an empty list if not context is needed.
               - A dates range, if the context is time-based, in the field "dates_range". Leave an empty list if not context is needed. FYI if the user says today, today is {current_date}.
-    
+
             Conversation:
             {conversation}
-            
+
             {format_instructions}
         '''.replace('    ', '').strip()
     parser = PydanticOutputParser(pydantic_object=ContextOutput)
@@ -328,7 +331,7 @@ def initial_chat_message(plugin: Optional[Plugin] = None) -> str:
     if plugin is None:
         prompt = '''
         You are an AI with the following characteristics:
-        Name: Friend, 
+        Name: Friend,
         Personality/Description: A friendly and helpful AI assistant that aims to make your life easier and more enjoyable.
         Task: Provide assistance, answer questions, and engage in meaningful conversations.
 
@@ -340,7 +343,7 @@ def initial_chat_message(plugin: Optional[Plugin] = None) -> str:
     else:
         prompt = f'''
         You are an AI with the following characteristics:
-        Name: {plugin.name}, 
+        Name: {plugin.name},
         Personality/Description: {plugin.chat_prompt},
         Task: {plugin.memory_prompt}
 

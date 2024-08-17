@@ -29,12 +29,21 @@ def weighted_rating(plugin):
 
 def get_plugins_data(uid: str, include_reviews: bool = False) -> List[Plugin]:
     # print('get_plugins_data', uid, include_reviews)
-    response = requests.get('https://raw.githubusercontent.com/BasedHardware/Friend/main/community-plugins.json')
-    if response.status_code != 200:
-        return []
+    #response = requests.get('https://raw.githubusercontent.com/BasedHardware/Friend/main/community-plugins.json')
+
+    #if response.status_code != 200:
+    #    return []
+    import json
+    import os
+
+    print(os.getcwd())
+    with open("./community-plugins.json", "r") as f:
+      response = f.read()
+      data = json.loads(response)
+
     user_enabled = set(get_enabled_plugins(uid))
-    # print('get_plugins_data, user_enabled', user_enabled)
-    data = response.json()
+    print('get_plugins_data, user_enabled', user_enabled)
+    #data = response.json()
     plugins = []
     for plugin in data:
         plugin_dict = plugin
@@ -56,12 +65,13 @@ def get_plugins_data(uid: str, include_reviews: bool = False) -> List[Plugin]:
 
 def trigger_external_integrations(uid: str, memory: Memory) -> list:
     plugins: List[Plugin] = get_plugins_data(uid, include_reviews=False)
-    filtered_plugins = [plugin for plugin in plugins if plugin.triggers_on_memory_creation() and plugin.enabled]
+    filtered_plugins = [plugin for plugin in plugins if (plugin.triggers_on_memory_creation() or plugin.triggers_on_chat_query()) and plugin.enabled]
     if not filtered_plugins:
         return []
 
     threads = []
     results = {}
+    print('filtered_plugins', filtered_plugins)
 
     def _single(plugin: Plugin):
         if not plugin.external_integration.webhook_url:

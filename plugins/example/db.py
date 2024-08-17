@@ -7,7 +7,8 @@ r = redis.Redis(
     port=int(os.getenv('REDIS_DB_PORT')) if os.getenv('REDIS_DB_PORT') is not None else 6379,
     username='default',
     password=os.getenv('REDIS_DB_PASSWORD'),
-    health_check_interval=30
+    health_check_interval=30,
+    ssl=True
 )
 
 
@@ -35,6 +36,7 @@ def store_notion_database_id(uid: str, database_id: str):
 
 def get_notion_crm_api_key(uid: str) -> str:
     val = r.get(f'notion_crm_api_key:{uid}')
+    print(val)
     return val.decode('utf-8') if val else None
 
 
@@ -42,6 +44,27 @@ def get_notion_database_id(uid: str) -> str:
     val = r.get(f'notion_database_id:{uid}')
     return val.decode('utf-8') if val else None
 
+# **********************************************************
+# ************ BASIC AUTH PLUGIN (MAIL) UTILS ************
+# **********************************************************
+
+def store_chat_mail_api_key(uid: str, api_key: str):
+    r.set(f'mail_api_key:{uid}', api_key)
+
+
+def store_mail_database_id(uid: str, database_id: str):
+    r.set(f'mail_database_id:{uid}', database_id)
+
+
+def get_chat_mail_api_key(uid: str) -> str:
+    val = r.get(f'mail_api_key:{uid}')
+    print(val)
+    return val.decode('utf-8') if val else None
+
+
+def get_mail_database_id(uid: str) -> str:
+    val = r.get(f'mail_database_id:{uid}')
+    return val.decode('utf-8') if val else None
 
 # *******************************************************
 # ************ ADVANCED REALTIME PLUGIN UTILS ***********

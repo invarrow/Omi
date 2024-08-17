@@ -5,11 +5,13 @@ from typing import List
 import redis
 
 r = redis.Redis(
-    host=os.getenv('REDIS_DB_HOST'),
-    port=int(os.getenv('REDIS_DB_PORT')) if os.getenv('REDIS_DB_PORT') is not None else 6379,
+    host="calm-labrador-56092.upstash.io",
+    port=6379,
     username='default',
-    password=os.getenv('REDIS_DB_PASSWORD'),
-    health_check_interval=30
+    password="AdscAAIjcDFmNjdhN2U1NjU0YTA0ZDBjYWQ0MTk0MmM1M2Q3MTA1ZXAxMA",
+    health_check_interval=30,
+    ssl=True
+
 )
 
 

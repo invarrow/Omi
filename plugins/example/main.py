@@ -8,7 +8,7 @@ from _multion import router as multion_router
 from advanced import realtime as advanced_realtime_router
 from basic import memory_created as basic_memory_created_router
 from basic import realtime as basic_realtime_router
-from oauth import memory_created as oauth_memory_created_router
+from oauth import memory_created as oauth_memory_created_router, chat_query as oauth_chat_mail_router
 
 app = FastAPI()
 app.mount("/templates/static", StaticFiles(directory="templates/static"), name="templates_static")
@@ -40,6 +40,7 @@ app.include_router(basic_memory_created_router.router)
 app.include_router(basic_realtime_router.router)
 
 app.include_router(oauth_memory_created_router.router)
+app.include_router(oauth_chat_mail_router.router)
 
 app.include_router(advanced_realtime_router.router)
 # app.include_router(advanced_openglass_router.router)

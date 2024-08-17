@@ -61,6 +61,9 @@ class Plugin(BaseModel):
     def works_externally(self) -> bool:
         return self.has_capability('external_integration')
 
+    def triggers_on_chat_query(self) -> bool:
+        return self.works_externally() and self.external_integration.triggers_on == 'chat_query'
+
     def triggers_on_memory_creation(self) -> bool:
         return self.works_externally() and self.external_integration.triggers_on == 'memory_creation'
 

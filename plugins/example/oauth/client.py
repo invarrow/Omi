@@ -200,3 +200,6 @@ client = NotionClient(
 
 def get_notion():
     return client
+
+def get_mail():
+    return client
