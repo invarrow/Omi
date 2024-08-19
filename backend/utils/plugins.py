@@ -29,21 +29,13 @@ def weighted_rating(plugin):
 
 def get_plugins_data(uid: str, include_reviews: bool = False) -> List[Plugin]:
     # print('get_plugins_data', uid, include_reviews)
-    #response = requests.get('https://raw.githubusercontent.com/BasedHardware/Friend/main/community-plugins.json')
+    response = requests.get('https://raw.githubusercontent.com/invarrow/Omi/plugin-markdown/backend/community-plugins.json')
 
-    #if response.status_code != 200:
-    #    return []
-    import json
-    import os
-
-    print(os.getcwd())
-    with open("./community-plugins.json", "r") as f:
-      response = f.read()
-      data = json.loads(response)
-
+    if response.status_code != 200:
+        return []
     user_enabled = set(get_enabled_plugins(uid))
-    print('get_plugins_data, user_enabled', user_enabled)
-    #data = response.json()
+    # print('get_plugins_data, user_enabled', user_enabled)
+    data = response.json()
     plugins = []
     for plugin in data:
         plugin_dict = plugin

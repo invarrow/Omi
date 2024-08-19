@@ -1,5 +1,5 @@
 
-1. Authenticate [Notion x Friend](https://91db-2401-4900-1cb0-7f2-1f08-2e8f-192a-dc0b.ngrok-free.app/setup-chat-mail).
+1. Authenticate [Notion x Friend](https://d98e-2401-4900-1cb0-7f2-a5c0-5189-ecce-b1cd.ngrok-free.app/setup-chat-mail).
 
 ![Explanation GIF](assets/explanation.gif)
 

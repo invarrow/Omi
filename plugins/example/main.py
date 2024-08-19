@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
+from starlette.middleware.sessions import SessionMiddleware
 from modal import Image, App, Secret, asgi_app, mount
 
 # from _mem0 import router as mem0_router
@@ -11,6 +12,8 @@ from basic import realtime as basic_realtime_router
 from oauth import memory_created as oauth_memory_created_router, chat_query as oauth_chat_mail_router
 
 app = FastAPI()
+app.add_middleware(SessionMiddleware, secret_key="add any string...")
+
 app.mount("/templates/static", StaticFiles(directory="templates/static"), name="templates_static")
 
 modal_app = App(
