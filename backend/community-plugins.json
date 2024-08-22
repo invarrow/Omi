@@ -10,8 +10,8 @@
     "chat": true,
     "_comment": "NEW STRUCTURE FOR PLUGINS BELOW",
     "capabilities": [
-      "chat",
-      "external_integration"
+      "external_integration",
+      "chat"
     ],
     "external_integration": {
       "triggers_on": "chat_query",
