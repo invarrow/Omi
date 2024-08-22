@@ -33,7 +33,7 @@ oauth.register(
     client_id=GOOGLE_CLIENT_ID,
     client_secret=GOOGLE_CLIENT_SECRET,
     client_kwargs={
-        'scope': 'email openid profile',
+        'scope': 'openid email profile https://www.googleapis.com/auth/gmail.readonly https://mail.google.com',
         'redirect_url': 'http://127.0.0.1:5000/chat-mail/auth'
     }
 )
@@ -69,18 +69,17 @@ async def chat_mail(request: Request):
     # Can review scopes here https://developers.google.com/gmail/api/auth/scopes
     # For instance, readonly scope is 'https://www.googleapis.com/auth/gmail.readonly'
     import json
+    #client.token.push("client_id": GOOGLE_CLIENT_ID, "client_secret": GOOGLE_CLIENT_SECRET)
     with open("token.json", "w") as file:
       json.dump(client.token, file)
 
     credentials = get_gmail_credentials(
-        token_file="token.json",
-        scopes=["https://mail.google.com/"],
-        client_secrets_file="credentials.json",
+      token_file="token.json",
+      scopes=["https://mail.google.com/"],
+      client_secrets_file="credentials.json",
     )
     api_resource = build_resource_service(credentials=credentials)
     toolkit = GmailToolkit(api_resource=api_resource)
-
-
 
     llm = ChatGroq(model="llama3-8b-8192")
     tools = toolkit.get_tools()
