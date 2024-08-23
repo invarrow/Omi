@@ -22,7 +22,7 @@ def add_plugin_message(text: str, plugin_id: str, uid: str, memory_id: Optional[
         created_at=datetime.utcnow(),
         sender='ai',
         plugin_id=plugin_id,
-        from_external_integration=False,
+        from_external_integration=True,
         type='text',
         memories_id=[memory_id] if memory_id else [],
     )

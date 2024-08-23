@@ -39,12 +39,12 @@ def send_message(
     messages = filter_messages(messages, plugin_id)
 
     context_str, memories = retrieve_rag_context(uid, messages)
-    response: str = qa_rag(context_str, messages, plugin)
+    response: str = qa_rag(uid, context_str, messages, plugin)
 
     ai_message = Message(
         id=str(uuid.uuid4()),
         text=response,
-        from_external_integration=plugin.external_integration,
+        from_external_integration=True,
         created_at=datetime.utcnow(),
         sender='ai',
         plugin_id=plugin_id,

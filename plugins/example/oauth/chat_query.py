@@ -33,29 +33,26 @@ oauth.register(
     client_id=GOOGLE_CLIENT_ID,
     client_secret=GOOGLE_CLIENT_SECRET,
     client_kwargs={
-        'scope': 'openid email profile https://www.googleapis.com/auth/gmail.readonly https://mail.google.com',
-        'redirect_url': 'http://127.0.0.1:5000/chat-mail/auth'
+        'scope': 'openid email profile https://mail.google.com',
+        'redirect_url': 'http://127.0.0.1:5000/chat-mail/auth',
+        'access_type': 'offline',
     }
 )
 
-class Client:
-  uid:str
-  access_token:str
-  token:str
-
-
-client = Client()
 router.mount("/assets", StaticFiles(directory="templates", html=True), name="templates")
 
 @router.get("/setup-chat-mail")
 async def landing_page(request: Request, uid: str):
-    client.uid = uid
+    request.session["user_uid"] = uid
+    if not uid:
+        raise HTTPException(status_code=400, detail='UID is required')
     return templates.TemplateResponse(
          name="setup_chat_mail.html" , context = {"request": request, "uid": uid})
 
 @router.get('/chat-mail')
-async def chat_mail(request: Request):
-    mail_api_key = client.access_token
+@router.post('/chat-mail')
+async def chat_mail(request: Request, uid: str,data: dict):
+    mail_api_key = get_chat_mail_api_key(uid)
     if not mail_api_key: return {'message': 'Chat with Mail plugin is not setup properly, check your plugin settings.'}
 
     from langchain_google_community import GmailToolkit
@@ -70,8 +67,6 @@ async def chat_mail(request: Request):
     # For instance, readonly scope is 'https://www.googleapis.com/auth/gmail.readonly'
     import json
     #client.token.push("client_id": GOOGLE_CLIENT_ID, "client_secret": GOOGLE_CLIENT_SECRET)
-    with open("token.json", "w") as file:
-      json.dump(client.token, file)
 
     credentials = get_gmail_credentials(
       token_file="token.json",
@@ -86,15 +81,21 @@ async def chat_mail(request: Request):
 
 
     agent_executor = create_react_agent(llm, tools)
-    example_query = "Draft an email to fake@fake.com thanking them for coffee."
+    print(data)
+    query = data["prompt"]
+    print(query)
 
     events = agent_executor.stream(
-        {"messages": [("user", example_query)]},
+        {"messages": [("user", query)]},
         stream_mode="values",
     )
-    print("TEA")
+    response = ""
     for event in events:
         event["messages"][-1].pretty_print()
+        response+=event["messages"][-1].content
+
+
+    return {'message': response}
 
 
 @router.get("/chat-mail/login")
@@ -116,15 +117,31 @@ async def auth(request: Request):
     try:
         token = await oauth.google.authorize_access_token(request)
     except OAuthError as e:
-        print("HERE",e)
         return templates.TemplateResponse(
             name='error.html',
             context={'request': request, 'error': e.error}
         )
+
     user = token.get('userinfo')
-    print(type(token))
-    client.access_token = token.get('access_token')
-    client.token = token
+    access_token = token.get('access_token')
+    refresh_token = access_token
+    #refresh_token = token.get('refresh_token')
+    client_id = oauth.google.client_id
+    client_secret = oauth.google.client_secret
+
+    token["client_id"]=client_id
+    token["client_secret"]=client_secret
+    token["refresh_token"]=refresh_token
+
+    import json
+    f=open("token.json",'w')
+    f.write(json.dumps(token))
+    f.close()
+
+    store_chat_mail_api_key(request.session['user_uid'], access_token)
+    #store_mail_database_id(client.uid, mail_database_id)
+
+
     if user:
         request.session['user'] = dict(user)
     return RedirectResponse(f'/chat-mail/success')
@@ -132,9 +149,8 @@ async def auth(request: Request):
 @router.get('/chat-mail/success')
 async def auth_successful(request: Request):
     #store_chat_mail_api_key(client.uid, client.access_token)
-    return RedirectResponse(
-        f'/chat-mail'
-    )
+    print(request.session['user_uid'])
+    return templates.TemplateResponse("success_page.html", {"request": request})
 
 
 

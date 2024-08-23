@@ -300,14 +300,48 @@ def determine_requires_context(messages: List[Message]) -> Optional[Tuple[List[s
         return None
 
 
-def qa_rag(context: str, messages: List[Message], plugin: Optional[Plugin] = None) -> str:
+def qa_rag(uid: str, context: str, messages: List[Message], plugin: Optional[Plugin] = None) -> str:
     conversation_history = Message.get_messages_as_string(
         messages, use_user_name_if_available=True, use_plugin_name_if_available=True
     )
 
     plugin_info = ""
+    plugin_context = ""
+
     if plugin:
         plugin_info = f"Your name is: {plugin.name}, and your personality/description is '{plugin.description}'.\nMake sure to reflect your personality in your response.\n"
+        try:
+          if plugin.external_integration.triggers_on=="chat_query":
+            prompt = f"""
+            You are an assistant for question-answering tasks. Use the following pieces of retrieved context and the conversation history to continue the conversation.
+            If you don't know the answer, just say that you didn't find any related information or you that don't know. Use three sentences maximum and keep the answer concise.
+            If the message doesn't require context, it will be empty, so answer the question casually.
+            {plugin_info}
+            Conversation History:
+            {conversation_history}
+
+            Answer:
+            """.replace('    ', '').strip()
+
+            import requests
+            import json
+
+
+            response = requests.post(
+                plugin.external_integration.webhook_url+f"?uid={uid}",
+                data = json.dumps({
+                 "prompt": prompt,
+                }),
+                headers = {'Content-Type': 'application/json'}
+            )
+            if response.status_code == 200:
+               plugin_context = response.content.decode('utf-8')
+            else:
+                print("ERROR", response.content.decode('utf-8'))
+        except:
+            print("ERROR")
+
+
 
     prompt = f"""
     You are an assistant for question-answering tasks. Use the following pieces of retrieved context and the conversation history to continue the conversation.
@@ -320,6 +354,10 @@ def qa_rag(context: str, messages: List[Message], plugin: Optional[Plugin] = Non
     Context:
     ```
     {context}
+    ```
+    Plugin_context:
+    ```
+    {plugin_context if plugin_context else ''}
     ```
     Answer:
     """.replace('    ', '').strip()

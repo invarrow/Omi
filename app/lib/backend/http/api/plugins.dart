@@ -76,7 +76,7 @@ Future<String> getPluginMarkdown(String pluginMarkdownPath) async {
   // https://raw.githubusercontent.com/BasedHardware/Friend/main/assets/external_plugins_instructions/notion-conversations-crm.md
   var response = await makeApiCall(
     //url: 'https://raw.githubusercontent.com/BasedHardware/Friend/main$pluginMarkdownPath',
-    url: 'https://raw.githubusercontent.com/invarrow/Omi/plugin-markdown/plugins/instructions/chat-with-mail/README.md',
+    url: 'https://raw.githubusercontent.com/invarrow/Omi/plugin-markdown$pluginMarkdownPath',
     method: 'GET',
     headers: {},
     body: '',
@@ -86,7 +86,8 @@ Future<String> getPluginMarkdown(String pluginMarkdownPath) async {
 
 Future<bool> isPluginSetupCompleted(String? url) async {
   if (url == null || url.isEmpty) return true;
-  print('isPluginSetupCompleted: $url');
+  print('isPluginSetupCompleted: $url?uid=${SharedPreferencesUtil().uid}');
+  print('yooo');
   var response = await makeApiCall(
     url: '$url?uid=${SharedPreferencesUtil().uid}',
     method: 'GET',

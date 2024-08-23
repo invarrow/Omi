@@ -37,9 +37,11 @@ class _PluginDetailPageState extends State<PluginDetailPage> {
   void initState() {
     if (widget.plugin.worksExternally()) {
       getPluginMarkdown(widget.plugin.externalIntegration!.setupInstructionsFilePath).then((value) {
+      print(widget.plugin.id);
         value = value.replaceAll(
           '](assets/',
-          '](https://raw.githubusercontent.com/BasedHardware/Friend/main/plugins/instructions/${widget.plugin.id}/assets/',
+          //'](https://raw.githubusercontent.com/BasedHardware/Friend/main/plugins/instructions/${widget.plugin.id}/assets/',
+          '](https://raw.githubusercontent.com/invarrow/Omi/plugin-markdown/plugins/instructions/${widget.plugin.id}/assets/',
         );
         setState(() => instructionsMarkdown = value);
       });
