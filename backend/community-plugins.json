@@ -5,6 +5,7 @@
     "author": "Invarrow",
     "description": "Email Knowledge Base",
     "prompt": "You will be given a conversation of your user with others in their day to day work and life. Your task is to process this transcription and identify major information topics to extract from mails that would help the user. Any missing details should be recorded as 'Not Mentioned'.",
+    "chat_prompt": "You will be given a conversation of your user with others in their day to day work and life. Your task is to process this transcription and identify major information topics to extract from mails that would help the user. Any missing details should be recorded as 'Not Mentioned'.",
     "image": "/plugins/logos/doctor-patient-notes.png",
     "memories": false,
     "chat": true,
