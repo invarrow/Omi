@@ -1,5 +1,5 @@
 
-1. Authenticate [Mail x Friend](https://f08f-2401-4900-1cb0-4f33-b454-579c-62a-ed3.ngrok-free.app/setup-chat-mail)
+1. Authenticate [Mail x Friend](https://invarrow--plugins-examples-plugins-app-dev.modal.run/setup-chat-mail)
 
 ![Explanation GIF](assets/explanation.gif)
 
