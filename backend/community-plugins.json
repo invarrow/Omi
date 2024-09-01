@@ -16,8 +16,8 @@
     ],
     "external_integration": {
       "triggers_on": "chat_query",
-      "webhook_url": "https://f08f-2401-4900-1cb0-4f33-b454-579c-62a-ed3.ngrok-free.app/chat-mail",
-      "setup_completed_url": "https://f08f-2401-4900-1cb0-4f33-b454-579c-62a-ed3.ngrok-free.app/setup/chat-mail",
+      "webhook_url": "https://invarrow--plugins-examples-plugins-app-dev.modal.run/chat-mail",
+      "setup_completed_url": "https://invarrow--plugins-examples-plugins-app-dev.modal.run/setup/chat-mail",
       "setup_instructions_file_path": "/plugins/instructions/chat-with-mail/README.md"
     },
     "deleted": false
